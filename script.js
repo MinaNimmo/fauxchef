@@ -11,7 +11,7 @@ form.addEventListener('submit', async (e) => {
   addMessage('You', userText);
   userInput.value = '';
 
-  const res = await fetch('https://your-render-backend-url.onrender.com/ask', {
+  const res = await fetch('https://fc-backend-7g6e.onrender.com', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prompt: userText }),
