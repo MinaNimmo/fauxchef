@@ -1,31 +1,47 @@
-const chatBox = document.getElementById('chat-box');
+const form = document.getElementById('chat-form');
+const chatLog = document.getElementById('chat-log');
 const userInput = document.getElementById('user-input');
-const ingredientList = document.getElementById('ingredient-list');
+const ingredientsList = document.getElementById('ingredients-list');
 
-async function sendMessage() {
-  const message = userInput.value.trim();
-  if (!message) return;
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const userText = userInput.value.trim();
+  if (!userText) return;
 
-  chatBox.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
-  userInput.value = "";
+  addMessage('You', userText);
+  userInput.value = '';
 
-  const response = await fetch("https://fauxchef-backend.onrender.com/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ message })
+  const res = await fetch('https://your-render-backend-url.onrender.com/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt: userText }),
   });
 
-  const data = await response.json();
+  const data = await res.json();
+  addMessage('FauxChef', data.response);
+  extractIngredients(data.response);
+});
 
-  chatBox.innerHTML += `<div><strong>FauxChef:</strong> ${data.reply}</div>`;
-  chatBox.scrollTop = chatBox.scrollHeight;
+function addMessage(sender, text) {
+  const message = document.createElement('div');
+  message.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatLog.appendChild(message);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
 
-  ingredientList.innerHTML = "";
-  data.ingredients.forEach(item => {
-    const li = document.createElement("li");
-    li.textContent = item;
-    ingredientList.appendChild(li);
-  });
+function extractIngredients(text) {
+  const ingredientRegex = /\b(\d+)?\s?(cups?|tablespoons?|tsp|teaspoons?|grams?|ml|oz)?\s?([a-zA-Z ]+?)\b(?=[,\.])/gi;
+  const found = new Set();
+  let match;
+  ingredientsList.innerHTML = '';
+
+  while ((match = ingredientRegex.exec(text)) !== null) {
+    const ingredient = match[3].trim();
+    if (ingredient && !found.has(ingredient.toLowerCase())) {
+      found.add(ingredient.toLowerCase());
+      const li = document.createElement('li');
+      li.textContent = `🍴 ${ingredient}`;
+      ingredientsList.appendChild(li);
+    }
+  }
 }
