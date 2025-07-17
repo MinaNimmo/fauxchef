@@ -9,7 +9,7 @@ async function sendMessage() {
   chatBox.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
   userInput.value = "";
 
-  const response = await fetch("https://fauxchef-backend.onrender.com/ask", {
+  const response = await fetch("https://fauxchef-backend.onrender.com/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
